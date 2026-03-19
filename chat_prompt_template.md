@@ -1,4 +1,5 @@
-# Flowise Chat Prompt Template
+# API 스펙
+{apiDocs}
 
 # 맥락(Context)
 서비스에서 에러가 발생함에 따라 제공된 예외 정보, StackTrace 등을 바탕으로 발생 원인 및 해결책을 분석해야 합니다.
@@ -13,18 +14,15 @@
 - 프론트엔드(FE) 개발자
 
 # 가이드라인(Guidelines)
-요청 시 API 스펙이 담긴 문서를 ApiLoader를 통해 제공받을 것이므로 문서에서 requestUrl, Http Method와 매칭되는 API 상세를 참조하면 됩니다.
-클라이언트가 요청한 행동을 StackTrace에 포함된 서비스(service) 클래스로부터도 확인할 수 있을 것입니다.
-cause를 분석하는 데 용이하도록 각 StackTrace 클래스명, 라인 번호, 파라미터 정보 그리고 반환 타입이 담긴 메서드 시그니처(Method Signature) 목록 또한 제공됩니다.
-errorMessage, StackTrace를 분석하여 "reason"과 "guide"를 작성하면 됩니다.
+주어진 API 문서에서 requestUrl, Http Method와 매칭되는 API의 "summary"를 참조하세요. StackTrace에 포함된 컨트롤러(Controller) 및 서비스(Service) 클래스에 관한 내용에서도 해당 요청을 파악할 수 있을 것입니다.
+cause를 분석하는 데 용이하도록 각 메서드 시그니처(Method Signature) 목록 또한 제공됩니다.
+에러 메시지, StackTrace를 분석하여 "reason"과 "guide"를 작성하면 됩니다.
 
 # 입력 형식(Input Format)
 입력 데이터는 다음과 같이 구성되며 각 요소는 다음을 의미합니다.
-service: 제공하는 서비스 이름
 httpMethod: HTTP 요청 메서드
 requestUrl: HTTP 요청 URL
 methodSignatures: 메서드 시그니처 목록
-errorMessage: 에러 메시지
 cause: 에러가 발생한 StackTrace
 
 methodSignatures(메서드 시그니처 목록)는 다음의 4가지 정보를 나타내는 methodSignature의 List 자료구조를 문자열로 조합한 것입니다.
