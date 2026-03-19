@@ -1,0 +1,70 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.11'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.ckstjr'
+version = '0.0.1-SNAPSHOT'
+description = 'LLM-based error analysis automation'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+ext {
+    set('springCloudVersion', "2025.0.1")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+sourceSets {
+    processor {
+        java {
+            srcDir 'src/main/java'
+            include 'com/ckstjr/erroranalysis/processor/**'
+        }
+        resources {
+            srcDir 'src/main/resources'
+            include 'META-INF/services/javax.annotation.processing.Processor'
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.ow2.asm:asm:9.7'
+    implementation 'org.ow2.asm:asm-tree:9.7'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
+    implementation 'com.slack.api:slack-api-client:1.45.1'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // 이 프로젝트의 프로세서를 컴파일 타임에 사용하도록 설정
+    annotationProcessor sourceSets.processor.output
+    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('compileJava') {
+    dependsOn 'compileProcessorJava'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
