@@ -2,26 +2,24 @@ package com.ckstjr.erroranalysis.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
-@Getter @Setter
-@Configuration
+@Getter
+@RequiredArgsConstructor
 @ConfigurationProperties(prefix = "flowise")
 public class FlowiseProperties {
     /**
      * Flowise API Base URL
      */
-    private String baseUrl;
+    private final String baseUrl;
 
     /**
      * Flowise Chatflow ID
      */
-    private String chatflowId;
+    private final String chatflowId;
 
     /**
      * Optional Bearer Token for authorization
      */
-    private String apiKey;
+    private final String apiKey;
 }
