@@ -13,7 +13,7 @@ import java.util.Map;
 public interface FlowiseClient {
 
     @PostMapping("/api/v1/prediction/{chatflowId}")
-    ErrorAnalysisResponse analyzeError(
+    ErrorAnalysisResponse predict(
             @PathVariable("chatflowId") String chatflowId,
             @RequestBody Map<String, String> request
     );

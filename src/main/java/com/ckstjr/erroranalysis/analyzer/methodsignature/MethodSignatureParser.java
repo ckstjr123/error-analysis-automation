@@ -23,7 +23,9 @@ import java.util.stream.Collectors;
 @Component
 public class MethodSignatureParser {
 
-    private static final MethodSignature EMPTY = new MethodSignature("", -1, new ArrayList<>(), "");
+    protected static final int UNKNOWN_LINE_NUMBER = -1;
+    protected static final String ARG = "arg";
+    private static final MethodSignature EMPTY = new MethodSignature("", UNKNOWN_LINE_NUMBER, new ArrayList<>(), "");
 
     /**
      * 필터링된 스택 트레이스 요소 목록을 받아 각각의 메서드 시그니처 정보를 추출합니다.
@@ -73,8 +75,9 @@ public class MethodSignatureParser {
 
     /**
      * 찾은 MethodNode에서 파라미터 이름/타입과 반환 타입을 추출합니다.
+     * (접근 제어자를 package-private으로 두어 같은 패키지의 테스트 코드에서 직접 검증할 수 있도록 합니다)
      */
-    private MethodSignature extractMethodSignature(String className, int lineNumber, MethodNode method) {
+    MethodSignature extractMethodSignature(String className, int lineNumber, MethodNode method) {
         Type[] argumentTypes = Type.getArgumentTypes(method.desc);
 
         // 메서드가 static인지 확인합니다. 인스턴스 메서드인 경우 첫번째 로컬 변수가 항상 this 객체이므로 1개를 건너뛰고(dropCount = 1),
@@ -82,16 +85,18 @@ public class MethodSignatureParser {
         boolean isStatic = (method.access & org.objectweb.asm.Opcodes.ACC_STATIC) != 0;
         int dropCount = isStatic ? 0 : 1;
 
-        List<String> parameterNames = method.localVariables.stream()
-                .skip(dropCount)
-                .limit(argumentTypes.length)
-                .map(LocalVariableNode -> LocalVariableNode.name)
-                .toList();
+        List<String> parameterNames = method.localVariables == null 
+                ? List.of()
+                : method.localVariables.stream()
+                    .skip(dropCount)
+                    .limit(argumentTypes.length)
+                    .map(LocalVariableNode -> LocalVariableNode.name)
+                    .toList();
 
         List<ParameterInfo> parameters = new ArrayList<>();
         for (int i = 0; i < argumentTypes.length; i++) {
-            String name = (i < parameterNames.size()) ? parameterNames.get(i) : "arg" + i;
-            parameters.add(new ParameterInfo(name, argumentTypes[i].getClassName()));
+            String name = (i < parameterNames.size()) ? parameterNames.get(i) : ARG + i;
+            parameters.add(new ParameterInfo(argumentTypes[i].getClassName(), name));
         }
 
         return new MethodSignature(

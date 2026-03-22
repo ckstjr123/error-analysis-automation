@@ -32,7 +32,6 @@ public class LlmErrorAnalyzer implements ErrorAnalyzer {
 
     @Override
     public ErrorAnalysisResponse analyze(ErrorAnalysisRequest request) {
-        // 스택 트레이스 필터링
         List<StackTraceElement> filteredStackTrace = filterStackTrace(request.getException());
 
         // 상세 메시지와 필터링된 스택 트레이스를 하나의 문자열(cause)로 결합
@@ -43,8 +42,7 @@ public class LlmErrorAnalyzer implements ErrorAnalyzer {
                 .map(MethodSignature::toString)
                 .collect(Collectors.joining("\n"));
 
-        // Feign Client를 통해 Flowise 호출
-        return flowiseClient.analyzeError(
+        return flowiseClient.predict(
                 flowiseProperties.getChatflowId(),
                 Map.of(
                         "question", """
