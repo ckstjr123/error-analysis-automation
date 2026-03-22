@@ -40,19 +40,16 @@ public class LlmErrorReporter {
      */
     @Async
     public void report(ErrorAnalysisRequest request) {
-        // 에러에 대한 고유 캐시 키 생성
         String cacheKey = createCacheKey(request);
 
-        // 중복 분석 요청 방지
         Boolean isLockSuccess = redisTemplate.opsForValue().setIfAbsent(cacheKey, TRUE.toString(), NOTIFY_DURATION);
-
         if (!isLockSuccess) {
             log.info("해당 에러는 최근 {}분 내에 이미 접수되었습니다. [key: {}]", NOTIFY_DURATION.toMinutes(), cacheKey);
             return;
         }
 
         ErrorAnalysisResponse response = llmErrorAnalyzer.analyze(request);
-        log.info("에러 분석 완료. inference={}", response.getJson().getInference());
+        log.info("에러 분석 완료. inference: {}", response.getJson().getInference());
 
         notify(request, response.getJson(), cacheKey);
     }
@@ -85,7 +82,6 @@ public class LlmErrorReporter {
         String httpMethod = request.getHttpMethod().toUpperCase();
         String path = request.getPath();
         Exception ex = request.getException();
-        String exceptionName = ex.getClass().getSimpleName();
 
         return String.format("%s:%s:%s:%s", request.getMemberId(), httpMethod, path, ex.getMessage());
     }

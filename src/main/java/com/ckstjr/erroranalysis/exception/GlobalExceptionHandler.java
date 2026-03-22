@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public Response<Void> handleNullPointerException(NullPointerException ex) {
         log.warn("NullPointerException occurred", ex);
-        return Response.error("서버에서 예기치 않은 오류가 발생했습니다. (데이터 누락)");
+        return Response.error("요청 처리 중 필요한 값이 없어 오류가 발생했습니다.");
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Response<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         log.warn("MethodArgumentTypeMismatchException {}", ex.getName(), ex);
-        return Response.error("요청 파라미터의 형식이 올바르지 않습니다.", "파라미터명: " + ex.getName());
+        return Response.error("요청 파라미터 형식이 올바르지 않습니다.", "파라미터명: " + ex.getName());
     }
-    
+
 }

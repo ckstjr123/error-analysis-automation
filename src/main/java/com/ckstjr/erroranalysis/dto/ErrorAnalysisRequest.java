@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 public class ErrorAnalysisRequest {
     /**
-     * 에러를 발생시킨 사용자 ID (원문: userId)
+     * 에러를 발생시킨 사용자 ID (userId)
      * 용도: 에러 리포팅 시 동일 사용자의 중복 알림 방지(Rate Limiting)를 위한 캐시 키 생성 등에 사용됩니다.
      */
     private Long memberId;
