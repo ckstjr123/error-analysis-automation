@@ -22,21 +22,21 @@ class MethodSignatureParserTest {
 
     private final MethodSignatureParser parser = new MethodSignatureParser();
 
-    // 1. 인스턴스 메서드 테스트를 위한 더미 클래스
+    // 인스턴스 메서드 테스트를 위한 더미 클래스
     private static class DummyInstanceClass {
         public Long instanceMethod(Long id, String text) {
             return id;
         }
     }
 
-    // 2. 정적(static) 메서드 테스트를 위한 더미 클래스
+    // 정적(static) 메서드 테스트를 위한 더미 클래스
     private static class DummyStaticClass {
         public static Object staticMethod(Object object, boolean flag) {
             return object;
         }
     }
 
-    // 3. 로컬 변수 테이블이 없는 상황 테스트를 위한 더미 인터페이스
+    // 로컬 변수 테이블이 없는 상황 테스트를 위한 더미 인터페이스
     private interface DummyInterface {
         void method(String str, int count);
     }
