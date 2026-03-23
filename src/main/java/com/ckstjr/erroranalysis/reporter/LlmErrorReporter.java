@@ -49,7 +49,7 @@ public class LlmErrorReporter {
         }
 
         ErrorAnalysisResponse response = llmErrorAnalyzer.analyze(request);
-        log.info("에러 분석 완료. inference: {}", response.getJson().getInference());
+        log.info("에러 분석 완료. \"inference\":{}", response.getJson().getInference());
 
         notify(request, response.getJson(), cacheKey);
     }
