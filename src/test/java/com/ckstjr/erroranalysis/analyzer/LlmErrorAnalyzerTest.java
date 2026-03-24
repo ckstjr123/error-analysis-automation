@@ -3,7 +3,7 @@ package com.ckstjr.erroranalysis.analyzer;
 import com.ckstjr.erroranalysis.analyzer.methodsignature.MethodSignatureParser;
 import com.ckstjr.erroranalysis.client.FlowiseClient;
 import com.ckstjr.erroranalysis.config.FlowiseProperties;
-import com.ckstjr.erroranalysis.controller.ErrorController;
+import com.ckstjr.erroranalysis.api.ErrorController;
 import com.ckstjr.erroranalysis.dto.ErrorAnalysisRequest;
 import com.ckstjr.erroranalysis.dto.ErrorAnalysisResponse;
 import com.ckstjr.erroranalysis.dto.ErrorAnalysisResult;

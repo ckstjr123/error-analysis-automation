@@ -1,4 +1,4 @@
-package com.ckstjr.erroranalysis.controller;
+package com.ckstjr.erroranalysis.api;
 
 import com.ckstjr.erroranalysis.service.ErrorService;
 import io.swagger.v3.oas.annotations.Operation;
