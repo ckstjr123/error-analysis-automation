@@ -49,7 +49,3 @@ src/test/resources/application.properties
 
 ### Environment files ###
 .env
-
-### Diagrams ###
-sequence_diagram.mmd
-sequence_diagram.png
