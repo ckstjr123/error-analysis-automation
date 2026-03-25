@@ -16,7 +16,11 @@ public class SlackNotifier {
     @Value("${slack.webhook-url}")
     private String webhookUrl;
 
-    public void send(String text) throws IOException {
-        Slack.getInstance().send(webhookUrl, payload(p -> p.text(text)));
+    public void send(String text) {
+        try {
+            Slack.getInstance().send(webhookUrl, payload(p -> p.text(text)));
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 }

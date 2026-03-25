@@ -66,13 +66,9 @@ public class LlmErrorReporter {
         sb.append("solve: ").append(result.getGuide()).append("\n");
         sb.append("```");
 
-        try {
-            slackNotifier.send(sb.toString());
-            // 알림 발송이 성공적으로 끝난 시점을 기준으로 다시 10분의 쿨타임을 갱신(덮어쓰기)합니다.
-            redisTemplate.opsForValue().set(cacheKey, TRUE.toString(), NOTIFY_DURATION);
-        } catch (IOException ex) {
-            throw new IllegalStateException(ex);
-        }
+        slackNotifier.send(sb.toString());
+        // 알림 발송이 성공적으로 끝난 시점을 기준으로 다시 10분의 쿨타임을 갱신(덮어쓰기)합니다.
+        redisTemplate.opsForValue().set(cacheKey, TRUE.toString(), NOTIFY_DURATION);
     }
 
     /**
