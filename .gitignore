@@ -39,8 +39,7 @@ out/
 ### Properties ###
 src/main/resources/application.properties
 src/test/resources/application.properties
-
-
+ㅇ
 ### Gemini CLI ###
 .gemini/
 
@@ -49,7 +48,3 @@ src/test/resources/application.properties
 
 ### Environment files ###
 .env
-
-### Diagrams ###
-sequence_diagram.mmd
-sequence_diagram.png
