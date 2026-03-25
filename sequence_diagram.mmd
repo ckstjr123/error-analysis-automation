@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor Client
+    participant Controller
+    participant ExceptionHandler
+    participant ErrorReportAspect
+    participant ErrorReporter
+    participant LlmErrorReporter
+    participant ErrorAnalyzer
+    participant SlackNotifier
+    participant Redis
+
+    Client->>Controller: API 요청
+    Controller-->>ExceptionHandler: 예외 발생
+    
+    %% Exception Handling & AOP Trigger
+    ExceptionHandler->>ErrorReportAspect: @After(ExceptionHandler)
+    ErrorReportAspect->>ErrorReporter: report(ex, request)
+    ErrorReporter-)LlmErrorReporter: report(ErrorAnalysisRequest) [Async]
+    
+    %% Return Error Response (Main Thread)
+    ExceptionHandler-->>Client: 에러 응답 (ex: 400/500)
+    
+    %% Async Error Analysis & Reporting (Worker Thread)
+    Note over LlmErrorReporter: 비동기 스레드에서 실행 (@Async)
+    LlmErrorReporter->>Redis: setIfAbsent(cacheKey, NOTIFY_DURATION)
+    Redis-->>LlmErrorReporter: 에러 캐싱 여부 반환 (isLockSuccess)
+
+    alt 에러 캐시 (isLockSuccess = true)
+        LlmErrorReporter->>ErrorAnalyzer: analyze(request)
+        ErrorAnalyzer-->>LlmErrorReporter: ErrorAnalysisResponse 반환
+        LlmErrorReporter->>SlackNotifier: send(message)
+        LlmErrorReporter->>Redis: set(cacheKey, TRUE, NOTIFY_DURATION) [쿨타임 갱신]
+    else 에러 키 이미 존재 (isLockSuccess = false)
+        Note over LlmErrorReporter: 에러 중복 분석 방지 (Return)
+    end

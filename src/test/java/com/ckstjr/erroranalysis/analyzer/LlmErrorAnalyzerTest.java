@@ -44,7 +44,7 @@ class LlmErrorAnalyzerTest {
     private LlmErrorAnalyzer llmErrorAnalyzer;
 
     @Test
-    @DisplayName("지정된 패키지가 포함된 스택 트레이스만 필터링되어야 함")
+    @DisplayName("지정된 스택 트레이스만 필터링되어야 함")
     void filterStackTrace() {
         // given
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
@@ -56,10 +56,10 @@ class LlmErrorAnalyzerTest {
         });
 
         // when
-        List<StackTraceElement> result = llmErrorAnalyzer.filterStackTrace(exception);
+        List<StackTraceElement> filteredStackTrace = llmErrorAnalyzer.filterStackTrace(exception);
 
         // then
-        assertThat(result)
+        assertThat(filteredStackTrace)
                 .extracting(StackTraceElement::getClassName)
                 .containsExactly(
                         ErrorController.class.getName(),
@@ -68,7 +68,7 @@ class LlmErrorAnalyzerTest {
     }
 
     @Test
-    @DisplayName("정상적인 에러 분석 요청 시 구조화된 응답이 반환되어야 함")
+    @DisplayName("발생한 에러 관련 정보를 전달하면 분석 결과가 응답되어야 함")
     void analyze() {
         final String httpMethod = "GET";
         final String path = "/api/test";
@@ -87,13 +87,13 @@ class LlmErrorAnalyzerTest {
         when(flowiseClient.predict(eq(TEST_CHATFLOW_ID), any())).thenReturn(expected);
         ErrorAnalysisRequest request = createErrorAnalysisRequest(httpMethod, path, exception);
 
-        ErrorAnalysisResponse actual = llmErrorAnalyzer.analyze(request);
+        ErrorAnalysisResponse response = llmErrorAnalyzer.analyze(request);
 
-        assertThat(actual.getQuestion()).isEqualTo(question);
-        assertThat(actual.getJson().getAction()).isEqualTo(action);
-        assertThat(actual.getJson().getReason()).isEqualTo(reason);
-        assertThat(actual.getJson().getGuide()).isEqualTo(guide);
-        assertThat(actual.getJson().getInference()).isEqualTo(inference);
+        assertThat(response.getQuestion()).isEqualTo(question);
+        assertThat(response.getJson().getAction()).isEqualTo(action);
+        assertThat(response.getJson().getReason()).isEqualTo(reason);
+        assertThat(response.getJson().getGuide()).isEqualTo(guide);
+        assertThat(response.getJson().getInference()).isEqualTo(inference);
     }
 
     @Test
@@ -111,10 +111,10 @@ class LlmErrorAnalyzerTest {
         ErrorAnalysisRequest request = createErrorAnalysisRequest("POST", "/api/external", exception);
 
         // when
-        ErrorAnalysisResponse actual = llmErrorAnalyzer.analyze(request);
+        ErrorAnalysisResponse response = llmErrorAnalyzer.analyze(request);
 
         // then
-        assertThat(actual).isEqualTo(expected);
+        assertThat(response).isEqualTo(expected);
     }
 
     @Test
