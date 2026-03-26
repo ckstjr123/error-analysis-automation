@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -21,9 +22,12 @@ public class ErrorReportAspect {
 
     private final ErrorReporter errorReporter;
 
-    @After("@within(com.ckstjr.erroranalysis.aop.ErrorReport) " +
-           "&& @annotation(org.springframework.web.bind.annotation.ExceptionHandler) " +
-           "&& !@annotation(com.ckstjr.erroranalysis.aop.ErrorReport.Exclude)")
+    @Pointcut("@within(com.ckstjr.erroranalysis.aop.ErrorReport) " +
+              "&& @annotation(org.springframework.web.bind.annotation.ExceptionHandler) " +
+              "&& !@annotation(com.ckstjr.erroranalysis.aop.ErrorReport.Exclude)")
+    public void exceptionHandler() {}
+
+    @After("exceptionHandler()")
     public void reportError(JoinPoint joinPoint) {
         HttpServletRequest request = findRequest();
         if (request == null) {

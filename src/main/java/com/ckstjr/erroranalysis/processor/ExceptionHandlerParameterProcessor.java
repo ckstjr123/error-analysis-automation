@@ -27,7 +27,7 @@ public class ExceptionHandlerParameterProcessor extends AbstractProcessor {
     private static final String EXCEPTION_HANDLER_ANNOTATION = "org.springframework.web.bind.annotation.ExceptionHandler";
     private static final String EXCLUDE_ANNOTATION = "com.ckstjr.erroranalysis.aop.ErrorReport.Exclude";
 
-    private static final String ERROR_MESSAGE = "@ErrorReport가 적용된 클래스의 @ExceptionHandler 메서드는 Exception 타입 파라미터를 포함해야 합니다. " +
+    private static final String ERROR_MESSAGE = "@ErrorReport가 적용된 클래스의 @ExceptionHandler 메서드는 Exception 타입 파라미터를 명시해야 합니다. " +
                                                 "대상에서 제외하려면 @ErrorReport.Exclude 어노테이션을 사용하세요.";
 
     @Override
