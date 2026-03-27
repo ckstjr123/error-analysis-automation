@@ -1,1 +1,1 @@
-com.ckstjr.erroranalysis.processor.ExceptionHandlerParameterProcessor
+com.ckstjr.erroranalysis.processor.ErrorReportAnnotationProcessor

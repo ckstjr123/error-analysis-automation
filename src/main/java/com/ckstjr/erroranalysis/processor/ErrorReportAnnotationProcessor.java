@@ -1,34 +1,46 @@
 package com.ckstjr.erroranalysis.processor;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
-import java.lang.annotation.Inherited;
-import java.util.List;
 import java.util.Set;
 
-@SupportedAnnotationTypes({
-    "com.ckstjr.erroranalysis.aop.ErrorReport",
-    "org.springframework.web.bind.annotation.ExceptionHandler"
-})
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
-public class ExceptionHandlerParameterProcessor extends AbstractProcessor {
+public class ErrorReportAnnotationProcessor extends AbstractProcessor {
 
     private static final String ERROR_REPORT_ANNOTATION = "com.ckstjr.erroranalysis.aop.ErrorReport";
     private static final String EXCEPTION_HANDLER_ANNOTATION = "org.springframework.web.bind.annotation.ExceptionHandler";
-    private static final String EXCLUDE_ANNOTATION = "com.ckstjr.erroranalysis.aop.ErrorReport.Exclude";
+    private static final String ERROR_REPORT_EXCLUDE_ANNOTATION = "com.ckstjr.erroranalysis.aop.ErrorReport.Exclude";
 
     private static final String ERROR_MESSAGE = "@ErrorReport가 적용된 클래스의 @ExceptionHandler 메서드는 Exception 타입 파라미터를 선언해야 합니다. " +
                                                 "대상에서 제외하려면 @ErrorReport.Exclude 어노테이션을 사용하세요.";
+
+    private TypeMirror exceptionType;
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        this.exceptionType = processingEnv.getElementUtils().getTypeElement("java.lang.Exception").asType();
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return Set.of(
+                ERROR_REPORT_ANNOTATION,
+                EXCEPTION_HANDLER_ANNOTATION
+        );
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -38,12 +50,12 @@ public class ExceptionHandlerParameterProcessor extends AbstractProcessor {
         }
 
         Set<? extends Element> annotatedClasses = roundEnv.getElementsAnnotatedWith(errorReportElement);
-
         for (Element element : annotatedClasses) {
             if (element instanceof TypeElement typeElement) {
                 validateMethodsInClass(typeElement);
             }
         }
+
         return true;
     }
 
@@ -59,20 +71,17 @@ public class ExceptionHandlerParameterProcessor extends AbstractProcessor {
 
     private boolean isTargetMethod(ExecutableElement method) {
         return isAnnotatedWith(method, EXCEPTION_HANDLER_ANNOTATION)
-            && !isAnnotatedWith(method, EXCLUDE_ANNOTATION);
+            && !isAnnotatedWith(method, ERROR_REPORT_EXCLUDE_ANNOTATION);
     }
 
     private boolean isAnnotatedWith(Element element, String annotationName) {
         return element.getAnnotationMirrors().stream()
-            .anyMatch(mirror -> mirror.getAnnotationType().toString().equals(annotationName));
+                .anyMatch(mirror -> mirror.getAnnotationType().toString().equals(annotationName));
     }
 
     private boolean hasExceptionParameter(ExecutableElement method) {
-        TypeMirror exceptionType = processingEnv.getElementUtils().getTypeElement(Exception.class.getCanonicalName()).asType();
-        List<? extends VariableElement> parameters = method.getParameters();
-
-        return parameters.stream()
-            .anyMatch(param -> processingEnv.getTypeUtils().isAssignable(param.asType(), exceptionType));
+        return method.getParameters().stream()
+            .anyMatch(parameter -> processingEnv.getTypeUtils().isAssignable(parameter.asType(), exceptionType));
     }
 
     private void printCompileError(Element element) {
